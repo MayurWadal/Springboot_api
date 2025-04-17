@@ -13,7 +13,6 @@ public class PracticeApplication {
 		String a;
 		Scanner sc = new Scanner(System.in);
 		a=sc.next();
-
 		SpringApplication.run(PracticeApplication.class, args);
 	}
 
