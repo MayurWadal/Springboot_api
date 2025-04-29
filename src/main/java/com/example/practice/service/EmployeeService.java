@@ -1,21 +1,24 @@
 package com.example.practice.service;
 
 import com.example.practice.enitity.Employee;
+import com.example.practice.enitity.request.EmpPageRequest;
 import com.example.practice.enitity.request.EmployeeRequest;
 import com.example.practice.repository.EmployeeRepo;
+import com.example.practice.specification.EmployeeSpecification;
+import com.example.practice.utills.Utills;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class EmployeeService {
     private final EmployeeRepo employeeRepo;
     private final ObjectMapper objectMapper;
-
     public EmployeeService(EmployeeRepo employeeRepo, ObjectMapper objectMapper) {
         this.employeeRepo = employeeRepo;
         this.objectMapper = objectMapper;
@@ -42,4 +45,16 @@ public class EmployeeService {
                 .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + id));
         return employee;
     }
+
+    public Page<Employee> getAllEmployee(EmpPageRequest pageRequest){
+        Specification<Employee> spec = new EmployeeSpecification(pageRequest);
+        Pageable pageable = Utills.toPageable(pageRequest.pagination());
+       Page<Employee> empList =  employeeRepo.findAll(spec,pageable);
+        return new PageImpl<>(
+                empList.getContent(),
+                pageable,
+                empList.getTotalElements()
+        );
+    }
+
 }
